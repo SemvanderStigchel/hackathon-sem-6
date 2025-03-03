@@ -9,22 +9,22 @@
         <label class="flex items-center gap-4 p-6 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition group">
           <div class="relative">
             <div class="w-8 h-8 border-4 border-white rounded-sm"></div>
-            <div v-if="answers.forWho === 'self'" class="absolute inset-0 flex items-center justify-center">
+            <div v-if="answers.forWho.includes('self')" class="absolute inset-0 flex items-center justify-center">
               <div class="w-4 h-4 bg-white rounded-sm"></div>
             </div>
           </div>
           <span class="text-white text-2xl">Mijzelf</span>
-          <input type="radio" v-model="answers.forWho" value="self" class="hidden">
+          <input type="checkbox" v-model="answers.forWho" value="self" class="hidden">
         </label>
         <label class="flex items-center gap-4 p-6 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition group">
           <div class="relative">
             <div class="w-8 h-8 border-4 border-white rounded-sm"></div>
-            <div v-if="answers.forWho === 'no'" class="absolute inset-0 flex items-center justify-center">
+            <div v-if="answers.forWho.includes('no')" class="absolute inset-0 flex items-center justify-center">
               <div class="w-4 h-4 bg-white rounded-sm"></div>
             </div>
           </div>
           <span class="text-white text-2xl">Iemand anders</span>
-          <input type="radio" v-model="answers.forWho" value="no" class="hidden">
+          <input type="checkbox" v-model="answers.forWho" value="no" class="hidden">
         </label>
       </div>
     </div>
@@ -38,12 +38,12 @@
                class="flex items-center gap-4 p-6 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition group">
           <div class="relative">
             <div class="w-8 h-8 border-4 border-white rounded-sm"></div>
-            <div v-if="answers.platform === platform" class="absolute inset-0 flex items-center justify-center">
+            <div v-if="answers.platform.includes(platform)" class="absolute inset-0 flex items-center justify-center">
               <div class="w-4 h-4 bg-white rounded-sm"></div>
             </div>
           </div>
           <span class="text-white text-2xl">{{ platform }}</span>
-          <input type="radio" v-model="answers.platform" :value="platform" class="hidden">
+          <input type="checkbox" v-model="answers.platform" :value="platform" class="hidden">
         </label>
       </div>
     </div>
@@ -57,12 +57,12 @@
                class="flex items-center gap-4 p-6 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition group">
           <div class="relative">
             <div class="w-8 h-8 border-4 border-white rounded-sm"></div>
-            <div v-if="answers.category === category" class="absolute inset-0 flex items-center justify-center">
+            <div v-if="answers.category.includes(category)" class="absolute inset-0 flex items-center justify-center">
               <div class="w-4 h-4 bg-white rounded-sm"></div>
             </div>
           </div>
           <span class="text-white text-2xl">{{ category }}</span>
-          <input type="radio" v-model="answers.category" :value="category" class="hidden">
+          <input type="checkbox" v-model="answers.category" :value="category" class="hidden">
         </label>
       </div>
     </div>
@@ -75,15 +75,15 @@
       <div class="space-y-8 text-left">
         <div class="bg-white/10 rounded-lg p-6">
           <h3 class="text-white text-2xl font-semibold mb-2">Voor wie maakt u de melding?</h3>
-          <p class="text-white text-xl">{{ answers.forWho === 'self' ? 'Mijzelf' : 'Iemand anders' }}</p>
+          <p class="text-white text-xl">{{ formatAnswers(answers.forWho, 'forWho') }}</p>
         </div>
         <div class="bg-white/10 rounded-lg p-6">
           <h3 class="text-white text-2xl font-semibold mb-2">Platform</h3>
-          <p class="text-white text-xl">{{ answers.platform }}</p>
+          <p class="text-white text-xl">{{ answers.platform.join(', ') }}</p>
         </div>
         <div class="bg-white/10 rounded-lg p-6">
           <h3 class="text-white text-2xl font-semibold mb-2">Categorie</h3>
-          <p class="text-white text-xl">{{ answers.category }}</p>
+          <p class="text-white text-xl">{{ answers.category.join(', ') }}</p>
         </div>
       </div>
       <div class="flex flex-col gap-4 items-center">
@@ -128,28 +128,28 @@ const platforms = ['Facebook', 'Instagram', 'TikTok', 'Snapchat', 'Whatsapp', 'T
 const categories = ['Criminaliteit', 'Pesten', 'Zeden']
 
 const answers = ref({
-  forWho: '',
-  platform: '',
-  category: ''
+  forWho: [],
+  platform: [],
+  category: []
 })
 
 const resetForm = () => {
   currentStep.value = 1
   answers.value = {
-    forWho: '',
-    platform: '',
-    category: ''
+    forWho: [],
+    platform: [],
+    category: []
   }
 }
 
 const canProceed = computed(() => {
   switch (currentStep.value) {
     case 1:
-      return answers.value.forWho !== ''
+      return answers.value.forWho.length > 0
     case 2:
-      return answers.value.platform !== ''
+      return answers.value.platform.length > 0
     case 3:
-      return answers.value.category !== ''
+      return answers.value.category.length > 0
     default:
       return false
   }
@@ -178,6 +178,17 @@ const submitForm = () => {
   setTimeout(() => {
     router.push('/')
   }, 2000)
+}
+
+const formatAnswers = (answers, type) => {
+  if (type === 'forWho') {
+    const mappings = {
+      'self': 'Mijzelf',
+      'no': 'Iemand anders'
+    }
+    return answers.map(answer => mappings[answer]).join(', ')
+  }
+  return answers.join(', ')
 }
 </script>
 
